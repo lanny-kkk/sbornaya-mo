@@ -1,0 +1,470 @@
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Сборная МО</title>
+<style>
+body{background:#000;color:#fff;text-align:center;font-family:Arial,sans-serif;margin:0;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between}
+h1{color:#8B0000;font-size:42px;margin:15px 0}
+.screen{flex:1;display:flex;flex-direction:column;justify-content:flex-start;padding:20px;box-sizing:border-box;animation:fadeIn .4s ease;position:relative;overflow-y:auto}
+.screen>div:not(.bg-layer){margin:auto}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.star{position:fixed;background:#fff;border-radius:50%;animation:drift 8s infinite ease-in-out}
+@keyframes drift{0%{opacity:.3;transform:translate(0,0)}50%{opacity:1;transform:translate(12px,-18px)}100%{opacity:.3;transform:translate(0,0)}}
+.timer{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:15px;margin:12px auto;width:100%;max-width:420px;font-size:20px;box-sizing:border-box}.timer b{font-size:26px}
+#photo{width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #fff}
+button{font-size:22px;padding:15px 60px;border-radius:30px;border:none;cursor:pointer}
+.btn-main{background:#8B0000;color:#fff}
+.bottom-bar{padding:20px 20px 30px}
+.btn-start{width:100%;max-width:420px;box-sizing:border-box}
+.btn-menu{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:16px;font-size:20px;padding:18px 24px;width:100%;max-width:420px;box-sizing:border-box}.btn-menu:hover{background:rgba(255,255,255,.2)}
+.menu-grid{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:24px;width:100%}
+.item-list{list-style:none;padding:0;width:100%;max-width:420px;margin:20px auto;box-sizing:border-box}
+.item-list li{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:14px;margin:10px 0;font-size:18px}
+.clickable{cursor:pointer}.clickable:hover{background:rgba(255,255,255,.2)}
+.bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none}
+.formula{position:fixed;color:rgba(255,255,255,.22);font-family:'Times New Roman',serif;white-space:nowrap;animation:drift 12s infinite ease-in-out}
+.bg-big{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);opacity:.08;animation:swayBig 10s ease-in-out infinite}
+@keyframes swayBig{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - 16px))}}
+.bg-emoji{position:fixed;opacity:.25;animation:drift 14s infinite ease-in-out}
+.photo-card{position:fixed;border:3px solid rgba(255,255,255,.45);background:rgba(255,255,255,.05);padding:8px 12px;line-height:1;box-sizing:border-box;animation:driftPhoto 12s infinite ease-in-out}
+@keyframes driftPhoto{0%{transform:rotate(-5deg)}50%{transform:rotate(4deg) translate(10px,-14px)}100%{transform:rotate(-5deg)}}
+.tagword{position:fixed;color:rgba(255,255,255,.28);font-family:Georgia,serif;letter-spacing:1px;white-space:nowrap;animation:drift 14s infinite ease-in-out}
+.shelf-scene{position:absolute;inset:0;overflow:hidden;opacity:.55}
+.shelf-scene::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.25) 45%,rgba(0,0,0,.7))}
+.shelf-track{position:absolute;left:0;bottom:8vh;display:flex;flex-direction:column;width:220vw;filter:blur(1.5px) brightness(.85);animation:panShelf 55s ease-in-out infinite alternate}
+@keyframes panShelf{from{transform:translateX(0)}to{transform:translateX(-55vw)}}
+.shelf-row{display:flex;align-items:flex-end;gap:2px;padding:0 6px}
+.book{position:relative;border-radius:3px 3px 0 0;box-shadow:inset -4px 0 8px rgba(0,0,0,.55),inset 2px 0 4px rgba(255,255,255,.08);flex-shrink:0}
+.book::after{content:'';position:absolute;top:14%;left:18%;right:18%;height:4px;background:rgba(255,255,255,.3);border-radius:2px}
+.shelf-board{height:12px;background:linear-gradient(#4a3520,#241a0e);border-radius:2px;box-shadow:0 6px 10px rgba(0,0,0,.7);margin-bottom:3px}
+.cal-bg{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:.16;animation:drift 16s infinite ease-in-out}
+.cal-title{font-size:clamp(28px,7vw,48px);letter-spacing:2px;margin-bottom:10px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px 10px;width:min(82vw,520px)}
+.cal-cell{font-size:clamp(14px,3.4vw,24px);padding:5px 0}
+.cal-wd{font-size:clamp(11px,2.4vw,16px);opacity:.7;letter-spacing:1px}
+.cal-today{color:#B22222;font-weight:bold}
+.soc-svg{position:fixed;inset:0;width:100%;height:100%}
+.soc-node{fill:rgba(255,255,255,.55)}
+.soc-limb{stroke:rgba(255,255,255,.45);stroke-width:1.8;stroke-linecap:round}
+.soc-person{animation:pulse 5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:.9}}
+.soc-link{stroke:rgba(255,255,255,.2);stroke-width:.5;stroke-dasharray:2.5 2.5;animation:dashFlow 5s linear infinite}
+@keyframes dashFlow{to{stroke-dashoffset:-10}}
+.def-text{font-size:15px;line-height:1.5;color:rgba(255,255,255,.65);max-width:420px;margin:0 auto 10px}.def-text i{color:rgba(255,255,255,.85)}
+.card{width:100%;max-width:420px;box-sizing:border-box;text-align:left;background:linear-gradient(90deg,rgba(139,0,0,.18),rgba(255,255,255,.06) 60%);border:1px solid rgba(139,0,0,.45);border-radius:14px;padding:14px 18px;font-size:18px;cursor:pointer;transition:background .15s;margin:0 auto}
+.card:hover{background:linear-gradient(90deg,rgba(139,0,0,.35),rgba(255,255,255,.12) 60%)}
+.card-head{display:flex;align-items:center;gap:12px}
+.card-icon{font-size:24px;flex-shrink:0}.card-title{font-weight:bold;flex:1}
+.card-arrow{font-size:16px;color:rgba(255,255,255,.5);transition:transform .25s;flex-shrink:0}
+.card.open .card-arrow{transform:rotate(90deg)}.card.open{border-radius:14px 14px 0 0}
+.card-panel{display:none;width:100%;max-width:420px;box-sizing:border-box;margin:0 auto;background:rgba(255,255,255,.05);border:1px solid rgba(139,0,0,.45);border-top:none;border-radius:0 0 14px 14px;padding:4px 14px 10px;text-align:left}
+.card-panel.show{display:block}
+.card-panel li{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:10px 14px;margin:8px 0;font-size:16px;cursor:pointer}
+.card-panel li:hover{background:rgba(255,255,255,.18)}
+.card-wrap{width:100%;max-width:420px;margin:0 auto}
+.cards-col{display:flex;flex-direction:column;gap:14px;margin-top:20px;width:100%;max-width:420px;margin-left:auto;margin-right:auto}
+#screen-quiz{background:linear-gradient(180deg,rgba(40,90,170,.3),rgba(15,35,80,.35))}
+#screen-text{background:linear-gradient(180deg,rgba(120,80,20,.25),rgba(60,40,10,.3))}
+.quiz-topic{font-size:18px;color:rgba(255,255,255,.7);margin:4px 0 18px}
+.quiz-question{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:18px;max-width:420px;margin:0 auto;font-size:19px;line-height:1.5;box-sizing:border-box}
+.quiz-options{display:flex;flex-direction:column;gap:10px;max-width:420px;margin:18px auto 0;width:100%}
+.quiz-opt{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:12px;font-size:17px;padding:13px 16px;text-align:left;cursor:pointer;transition:background .15s}.quiz-opt:hover{background:rgba(255,255,255,.2)}
+.quiz-opt.correct{background:rgba(46,125,50,.75);border-color:rgba(120,220,130,.8)}
+.quiz-opt.wrong{background:rgba(139,0,0,.75);border-color:rgba(255,100,100,.7)}
+.quiz-opt:disabled{cursor:default}
+.quiz-feedback{max-width:420px;margin:14px auto 0;font-size:15px;line-height:1.5;color:rgba(255,255,255,.85);min-height:20px}
+.quiz-progress{font-size:14px;color:rgba(255,255,255,.55);margin-top:14px}
+.quiz-final{max-width:420px;margin:10px auto;font-size:22px}
+.quiz-review{text-align:left;max-width:420px;margin:10px auto;background:rgba(139,0,0,.15);border:1px solid rgba(255,100,100,.4);border-radius:12px;padding:12px 16px;font-size:14px;line-height:1.5}
+.quiz-review b{color:#ff9a9a}.quiz-review .ok{color:#a5e8a5}
+.quiz-btns{display:flex;flex-direction:column;gap:10px;max-width:420px;margin:14px auto 0;width:100%}
+.quiz-btns button{width:100%;box-sizing:border-box;font-size:18px;padding:13px;border-radius:16px}
+.btn-blue{background:rgba(70,130,220,.85);color:#fff}
+.reader-box{max-width:420px;margin:0 auto;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:18px;font-size:16px;line-height:1.6;text-align:left;white-space:pre-wrap;box-sizing:border-box}
+@media(min-width:601px){.btn-menu{width:auto;min-width:220px}}
+#team-screen,#screen-thematics,#screen-daily,#screen-materials,#screen-debates,#screen-subject,#screen-quiz,#screen-text{display:none}
+</style></head><body>
+
+<div id="home-screen" class="screen"><div>
+<img id="photo" src="photo.jpg" onerror="this.style.display='none'">
+<h1>Сборная МО</h1>
+<div class="timer">До регионального этапа (4 февраля 2027):<br><b id="timer-region">...</b></div>
+<div class="timer">До заключительного этапа:<br><b id="timer-final">...</b></div>
+</div><div class="bottom-bar"><button class="btn-main btn-start" onclick="showScreen('team-screen')">START</button></div></div>
+
+<div id="team-screen" class="screen"><div><h1>Библиотека</h1><p>Выбери направление подготовки:</p>
+<div class="menu-grid">
+<button class="btn-menu" onclick="showScreen('screen-thematics')">📘 Тематика</button>
+<button class="btn-menu" onclick="showScreen('screen-daily')">🗓️ Ежедневно</button>
+<button class="btn-menu" onclick="showScreen('screen-materials')">📚 Материалы</button>
+<button class="btn-menu" onclick="showScreen('screen-debates')">💬 Дебаты с мыслителями</button>
+</div></div><div class="bottom-bar"><button class="btn-main btn-start" onclick="showScreen('home-screen')">← Назад</button></div></div>
+
+<div id="screen-thematics" class="screen"><div><h1>Тематика</h1><ul class="item-list">
+<li class="clickable" onclick="showSubject('economics')">Экономика</li>
+<li class="clickable" onclick="showSubject('philosophy')">Философия</li>
+<li class="clickable" onclick="showSubject('law')">Право</li>
+<li class="clickable" onclick="showSubject('culturology')">Культурология</li>
+<li class="clickable" onclick="showSubject('politics')">Политология</li>
+<li class="clickable" onclick="showSubject('logic')">Логика</li>
+<li class="clickable" onclick="showSubject('sociology')">Социология</li>
+</ul></div><div class="bottom-bar"><button class="btn-main btn-start" onclick="showScreen('team-screen')">← Назад</button></div></div>
+
+<div id="screen-daily" class="screen"><div><h1>Ежедневно</h1><ul class="item-list"><li>botay-dayly</li><li>Ежедневные квизы</li></ul></div>
+<div class="bottom-bar"><button class="btn-main btn-start" onclick="showScreen('team-screen')">← Назад</button></div>
+<div id="bg-daily" class="bg-layer"><div class="cal-bg"><div class="cal-title" id="cal-title"></div><div class="cal-grid" id="cal-grid"></div></div></div></div>
+
+<div id="screen-materials" class="screen"><div><h1>Материалы</h1><ul class="item-list"><li>Зачёты</li><li>Пробники</li><li>Лекции</li><li>Учебники</li></ul></div>
+<div class="bottom-bar"><button class="btn-main btn-start" onclick="showScreen('team-screen')">← Назад</button></div>
+<div id="bg-materials" class="bg-layer"><div class="shelf-scene"><div class="shelf-track" id="shelf-track"></div></div></div></div>
+
+<div id="screen-debates" class="screen"><div><h1>Дебаты с мыслителями</h1><ul class="item-list"><li>А</li><li>Б</li><li>В</li><li>Г</li><li>Д</li></ul></div>
+<div class="bottom-bar"><button class="btn-main btn-start" onclick="showScreen('team-screen')">← Назад</button></div></div>
+
+<div id="screen-subject" class="screen"><div><h1 id="subject-title"></h1><p class="def-text" id="subject-def"></p><div class="cards-col" id="subject-cards"></div></div>
+<div class="bottom-bar"><button class="btn-main btn-start" onclick="showScreen('screen-thematics')">← Назад</button></div>
+<div id="subject-bg" class="bg-layer"></div></div>
+
+<div id="screen-quiz" class="screen"><div><h1>Квиз</h1><p class="quiz-topic" id="quiz-topic"></p>
+<div class="quiz-question" id="quiz-question"></div><div class="quiz-options" id="quiz-options"></div>
+<div class="quiz-feedback" id="quiz-feedback"></div><div class="quiz-progress" id="quiz-progress"></div><div class="quiz-btns" id="quiz-btns"></div></div>
+<div class="bottom-bar"><button class="btn-main btn-start" onclick="if(qSub){showSubject(qSub)}else{showScreen('screen-thematics')}">← Назад</button></div></div>
+
+<div id="screen-text" class="screen"><div><h1 id="text-title"></h1><p class="quiz-topic" id="text-topic"></p>
+<div class="reader-box" id="text-body"></div></div>
+<div class="bottom-bar"><button class="btn-main btn-start" onclick="if(tSub){showSubject(tSub)}else{showScreen('screen-thematics')}">← Назад</button></div>
+<div id="text-bg" class="bg-layer"></div></div>
+
+<script>
+const SUBJECTS={
+economics:{title:'Экономика',def:'<i>Эконо́мика</i> — хозяйственная деятельность, а также совокупность общественных отношений, которые складываются в системе производства, распределения, обмена и потребления товаров и услуг.',
+sections:[
+{icon:'📄',title:'Задания прошлых лет',items:['А','Б','В']},
+{icon:'🎓',title:'Образовательный минимум от ЕВ',items:['А','Б','В']},
+{icon:'✅',title:'Экономический зачёт',items:['А','Б','В']},
+{icon:'📚',title:'Учебники',items:['Мэнкью. Принципы экономикс','Нуреев. Курс микроэкономики','Тарасевич. Микроэкономика','Филатов. Институциональная экономика']},
+{icon:'🎮',title:'Квизы',items:['Налоги в РФ','Режимы налогообложения: ОСНО, УСН, самозанятость','НДС в РФ','Фискальная и денежно-кредитная политика','Налоговые льготы и спецрежимы','Налоговые вычеты','Издержки и прибыль','Эластичность','Внешние эффекты и общественные блага','Конкуренция и рыночные структуры','СНС и ВВП','Экономический рост и циклы','Инфляция','Безработица','Внешняя торговля и курсы валют','Экономические кризисы','Институты и экономические системы','Субъекты хозяйственной деятельности','Институт рынка','Рынок труда','Финансовые рынки и финтех','Финансовые институты и банки','Финансовая грамотность','Предприятие как институт экономики','Предпринимательство и МСБ','Экономика и государство','Финансовая политика и цифровизация','Бюджетная политика','Налоговая политика','Международная экономика']}]},
+philosophy:{title:'Философия',def:'<i>Филосо́фия</i> — учение о наиболее общих законах развития природы, общества и мышления; форма духовной деятельности, направленная на постановку и осмысление фундаментальных вопросов бытия и познания.',
+sections:[
+{icon:'✅',title:'Зачёты',items:['А','Б','В']},
+{icon:'📜',title:'Тексты мыслителей',items:[
+'Фалес Милетский','Гераклит','Демокрит','Парменид','Сократ','Платон','Аристотель',
+'Зенон Китийский (стоики)','Эпикур','Диоген Синопский','Пиррон (скептики)',
+'Августин Блаженный','Фома Аквинский','Марсилий Падуанский',
+'Никколо Макиавелли','Жан Боден','Гуго Гроций','Рене Декарт','Фрэнсис Бэкон',
+'Бенедикт Спиноза','Блез Паскаль','Готфрид Лейбниц','Томас Гоббс','Джон Локк',
+'Давид Юм','Джордж Беркли','Иммануил Кант','Георг Гегель','Артур Шопенгауэр',
+'Фридрих Ницше','Анри Бергсон','Джереми Бентам','Джон Стюарт Милль',
+'Алексис де Токвиль','Эдмунд Бёрк','Карл Маркс и Фридрих Энгельс',
+'Макс Штирнер','Пьер-Жозеф Прудон','Михаил Бакунин','Пётр Кропоткин',
+'Сёрен Кьеркегор','Карл Поппер','Томас Кун','Пол Фейерабенд',
+'Хосе Ортега-и-Гассет','Освальд Шпенглер','Жан-Поль Сартр','Мартин Хайдеггер',
+'Альбер Камю','Ханна Арендт','Западники и славянофилы','Евразийцы'
+]},
+{icon:'🎮',title:'Квизы',items:[
+'Философия досократиков: Фалес, Гераклит, Демокрит, Парменид',
+'Поворот к человеку: орфики, пифагорейцы, софисты',
+'Философия Сократа: метод, жизнь и смерть',
+'Платон: мораль и познание. Миф о пещере',
+'Политическая философия Платона',
+'Метафизика Аристотеля',
+'Этика Аристотеля',
+'Политическая философия Аристотеля',
+'Философия стоицизма',
+'Философия Эпикура',
+'Киники и жизнь Диогена',
+'Античный скептицизм',
+'Теодицея в средневековой философии',
+'Проблема универсалий в Средневековье',
+'Проблема бытия Бога в Средневековье',
+'Фома Аквинский и Августин Блаженный',
+'Политическая философия Средневековья: два града, два меча, М. Падуанский',
+'Философия гуманизма Возрождения',
+'Классические утопии: Т. Мор, Т. Кампанелла, Ф. Бэкон',
+'Политический реализм Н. Макиавелли',
+'Философское наследие Ж. Бодена',
+'Философское наследие Г. Гроция и С. Пуфендорфа',
+'Рационализм Р. Декарта',
+'Эмпиризм Ф. Бэкона: «Новый Органон» и теория идолов',
+'Пантеизм Б. Спинозы',
+'Философия Б. Паскаля',
+'Философия Г. В. Лейбница',
+'Политическая философия Т. Гоббса',
+'Политическая и гносеологическая философия Дж. Локка',
+'Скептицизм Д. Юма',
+'Философия Дж. Беркли: субъективный идеализм',
+'Классический либерализм XVIII–XIX вв. (Локк, Токвиль, Милль). «Федералист»',
+'Консерватизм XVIII–XIX вв. (Бёрк, де Местр, Карамзин)',
+'Социализм XIX в.: утописты, марксизм, Бернштейн',
+'Анархизм XIX в. (Штирнер, Прудон, Бакунин, Кропоткин)',
+'Классическая немецкая философия: И. Кант',
+'Классическая немецкая философия: Г. В. Гегель',
+'Иррационализм и «философия жизни»: Шопенгауэр, Ницше, Бергсон',
+'Подходы к изучению науки: Поппер, Мах, Кун, Фейерабенд, Лакатос',
+'Утилитаризм (И. Бентам, Дж. С. Милль)',
+'Массовое общество и восстание масс: Ортега-и-Гассет, Шпенглер, цивилизационный подход',
+'Экзистенциализм и абсурдизм: Сартр, Хайдеггер, Камю',
+'Политическая философия Х. Арендт',
+'Русская мысль XIX в.: западники, славянофилы, народники. Евразийство'
+]},
+{icon:'📚',title:'Учебники',items:['Руденко. Философия','Рассел. История западной философии','Гоффман. Материалы курса','Постнаука (постнаука.ру)']}]},
+law:{title:'Право',def:'<i>Пра́во</i> — совокупность общеобязательных норм и правил поведения, установленных или санкционированных государством и обеспеченных его принудительной силой; мера свободы и справедливости в обществе.',sections:[{icon:'📄',title:'Задания прошлых лет',items:['А','Б','В']},{icon:'📋',title:'Задания от РВ',items:['А','Б','В']},{icon:'🎮',title:'Квизы',items:['А','Б','В']},{icon:'📚',title:'Учебники',items:['Козлова. Правоведение','Смоленский. Основы права','Гражданский кодекс РФ (краткий конспект)']}]},
+culturology:{title:'Культурология',def:'<i>Культуроло́гия</i> — наука о культуре, её сущности, строении, закономерностях возникновения, функционирования и развития, а также о многообразии культурных форм и традиций народов мира.',sections:[{icon:'📋',title:'Задания от НА',items:['А','Б','В']},{icon:'📄',title:'Задания прошлых лет',items:['А','Б','В']},{icon:'🎮',title:'Квизы',items:['А','Б','В']}]},
+politics:{title:'Политология',def:'<i>Политоло́гия</i> — наука о политике, политической власти и политических отношениях; изучает политические системы, институты, процессы и поведение субъектов политики в обществе.',sections:[{icon:'📄',title:'Задания прошлых лет',items:['А','Б','В']},{icon:'📚',title:'Учебники',items:['Мельвиль. Политология (уровень бакалавра)','Соловьёв. Политология: политическая теория','Гаджиев. Политология']},{icon:'🎮',title:'Квизы',items:['А','Б','В']},{icon:'✅',title:'Зачёты',items:['А','Б','В']}]},
+logic:{title:'Логика',def:'<i>Ло́гика</i> — наука о формах, методах и законах правильного мышления и рассуждений; учит строить доказательства, находить ошибки в умозаключениях и отделять истину от видимости истины.',sections:[{icon:'📄',title:'Задания прошлых лет',items:['А','Б','В']},{icon:'📚',title:'Учебники',items:['Гетманова. Учебник по логике','Ивин. Логика','Войшвилло. Понятие как форма мышления']},{icon:'🎮',title:'Квизы',items:['А','Б','В']}]},
+sociology:{title:'Социология',def:'<i>Социоло́гия</i> — наука об обществе как целостной системе, о закономерностях его развития, о социальных институтах, группах и взаимодействии людей в обществе.',sections:[{icon:'📚',title:'Учебники',items:['Эфендиев. Общая социология','Гидденс. Социология','Тощенко. Социология']},{icon:'📄',title:'Задания прошлых лет',items:['А','Б','В']},{icon:'✅',title:'Зачёты',items:['А','Б','В']},{icon:'🎮',title:'Квизы',items:['А','Б','В']}]}
+};
+
+// Контекст для ИИ по предметам
+const SOURCES={
+philosophy:'Опирайся на: учебник Руденко по философии, Б. Рассел «История западной философии», материалы Гоффмана и Постнауки, а также на канонические труды философов. Распределяй мыслителей по течениям и историческим периодам верно.'
+};
+
+const REGION_DATE=new Date('2027-02-04T10:00:00'),FINAL_DATE=new Date('2027-04-12T10:00:00');
+const CUSTOM_BG=['screen-subject','screen-materials','screen-daily','screen-quiz','screen-text'];
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
+  const el=document.getElementById(id);
+  el.style.display='flex';
+  el.scrollTop=0;
+  const hide=CUSTOM_BG.indexOf(id)!==-1;
+  document.querySelectorAll('.star').forEach(st=>st.style.display=hide?'none':'block');
+}
+function showSubject(key){
+  const s=SUBJECTS[key];
+  document.getElementById('subject-title').textContent=s.title;
+  document.getElementById('subject-def').innerHTML=s.def;
+  const col=document.getElementById('subject-cards');col.innerHTML='';
+  s.sections.forEach((sec,i)=>{
+    const wrap=document.createElement('div');wrap.className='card-wrap';
+    const card=document.createElement('div');card.className='card';
+    card.setAttribute('onclick',"togglePanel('panel-"+key+"-"+i+"',this)");
+    card.innerHTML='<div class="card-head"><div class="card-icon">'+sec.icon+'</div><div class="card-title">'+sec.title+'</div><div class="card-arrow">›</div></div>';
+    const panel=document.createElement('div');panel.className='card-panel';panel.id='panel-'+key+'-'+i;
+    const ul=document.createElement('ul');ul.className='item-list';
+    const isQuiz=sec.title.indexOf('Квизы')===0;
+    const isText=sec.title.indexOf('Тексты')===0;
+    sec.items.forEach(it=>{
+      const li=document.createElement('li');li.textContent=it;
+      if(isQuiz){li.className='clickable';li.setAttribute('onclick',"startQuiz('"+key+"','"+it.replace(/'/g,"\\'")+"')")}
+      if(isText){li.className='clickable';li.setAttribute('onclick',"startText('"+key+"','"+it.replace(/'/g,"\\'")+"')")}
+      ul.appendChild(li);
+    });
+    panel.appendChild(ul);wrap.appendChild(card);wrap.appendChild(panel);col.appendChild(wrap);
+  });
+  buildBg(key);showScreen('screen-subject');
+}
+// ===== КВИЗ (ИИ, 10 вопросов за запуск) =====
+let qq=[],qi=0,qs=0,qSub=null,qTopic=null,qWrong=[];
+function quizPrompt(k,topicName){
+  const src=SOURCES[k]?'Контекст: '+SOURCES[k]:'';
+  return 'Ты — составитель олимпиадных вопросов по предмету «'+SUBJECTS[k].title+'». '+
+    'Составь 10 тестовых вопросов по теме «'+topicName+'» из программы зачёта. '+
+    'Каждый вопрос короткий, теоретический, может быть расчётным, точный и однозначный. '+src+' '+
+    'Ответ верни СТРОГО одним JSON-массивом без пояснений, в формате: '+
+    '[{"q":"текст вопроса","options":["вариант1","вариант2","вариант3","вариант4"],"answer":0,"explain":"краткое объяснение"}], '+
+    'где answer — номер правильного варианта от 0 до 3.';
+}
+async function fetchAI(k,topicName){
+  try{
+    const seed=Math.random().toString(36).slice(2,8);
+    const r=await fetch('https://text.pollinations.ai/'+encodeURIComponent(quizPrompt(k,topicName)+' [seed:'+seed+']'),{signal:AbortSignal.timeout(15000)});
+    if(!r.ok)return null;
+    const x=await r.text(),a=x.indexOf('['),b=x.lastIndexOf(']');
+    if(a===-1||b<=a)return null;
+    const arr=JSON.parse(x.slice(a,b+1));
+    if(!Array.isArray(arr))return null;
+    const g=arr.filter(v=>v&&typeof v.q==='string'&&Array.isArray(v.options)&&v.options.length===4&&typeof v.answer==='number'&&v.answer>=0&&v.answer<=3);
+    return g.length?g:null;
+  }catch(e){return null}
+}
+function failQuiz(){
+  document.getElementById('quiz-question').textContent='Сломалось… Попробуй снова.';
+  const w=document.getElementById('quiz-btns');w.innerHTML='';
+  const b=document.createElement('button');b.className='btn-blue';b.textContent='Попробовать снова';
+  b.onclick=()=>startQuiz(qSub,qTopic);w.appendChild(b);
+}
+async function startQuiz(k,t){
+  qSub=k;qTopic=t;qq=[];qi=0;qs=0;qWrong=[];
+  document.getElementById('quiz-topic').textContent=SUBJECTS[k].title+' · '+t;
+  document.getElementById('quiz-question').textContent='Generation…';
+  ['quiz-options','quiz-btns'].forEach(i=>document.getElementById(i).innerHTML='');
+  ['quiz-feedback','quiz-progress'].forEach(i=>document.getElementById(i).textContent='');
+  showScreen('screen-quiz');
+  const ai=await fetchAI(k,t);
+  if(!ai){failQuiz();return}
+  qq=ai;render();
+}
+function render(){
+  const q=qq[qi];
+  document.getElementById('quiz-question').textContent=q.q;
+  document.getElementById('quiz-feedback').textContent='';
+  document.getElementById('quiz-progress').textContent='Вопрос '+(qi+1)+' из '+qq.length+' · Счёт: '+qs;
+  const o=document.getElementById('quiz-options');o.innerHTML='';document.getElementById('quiz-btns').innerHTML='';
+  q.options.forEach((opt,i)=>{const b=document.createElement('button');b.className='quiz-opt';b.textContent=opt;b.onclick=()=>answer(i,b);o.appendChild(b)});
+}
+function answer(i,btn){
+  const q=qq[qi],bs=document.getElementById('quiz-options').children;
+  for(let j=0;j<bs.length;j++){bs[j].disabled=true;if(j===q.answer)bs[j].classList.add('correct')}
+  if(i===q.answer){qs++;document.getElementById('quiz-feedback').textContent='Верно! '+(q.explain||'')}
+  else{btn.classList.add('wrong');document.getElementById('quiz-feedback').textContent='Неверно. '+(q.explain||'');
+    qWrong.push({q:q.q,yours:q.options[i],right:q.options[q.answer],explain:q.explain||''})}
+  document.getElementById('quiz-progress').textContent='Вопрос '+(qi+1)+' из '+qq.length+' · Счёт: '+qs;
+  const w=document.getElementById('quiz-btns');w.innerHTML='';
+  const n=document.createElement('button');n.className='btn-blue';
+  n.textContent=qi+1<qq.length?'Дальше →':'Результат';
+  n.onclick=()=>{qi++;qi<qq.length?render():result()};
+  w.appendChild(n);
+}
+function result(){
+  document.getElementById('quiz-question').textContent='Квиз завершён!';
+  document.getElementById('quiz-feedback').textContent='';
+  document.getElementById('quiz-progress').textContent='';
+  const o=document.getElementById('quiz-options');o.innerHTML='';
+  const f=document.createElement('div');f.className='quiz-final';
+  f.innerHTML='Правильных ответов: <b>'+qs+' из '+qq.length+'</b><br><span style="font-size:16px;opacity:.7">('+Math.round(qs/qq.length*100)+'%)</span>';
+  o.appendChild(f);
+  if(qWrong.length){
+    const r=document.createElement('div');r.className='quiz-review';
+    let h='<b>Разбор ошибок:</b><br>';
+    qWrong.forEach((w,i)=>{h+=(i+1)+'. «'+w.q+'»<br>Твой ответ: <span style="color:#ff9a9a">'+w.yours+'</span><br>Правильно: <span class="ok">'+w.right+'</span> — '+w.explain+'<br><br>'});
+    r.innerHTML=h;o.appendChild(r);
+  }else{
+    const p=document.createElement('div');p.style.cssText='font-size:16px;color:#a5e8a5;margin-top:6px';
+    p.textContent='Без единой ошибки — уровень!';o.appendChild(p);
+  }
+  const w=document.getElementById('quiz-btns');w.innerHTML='';
+  const a=document.createElement('button');a.className='btn-blue';a.textContent='Ещё раз';
+  a.onclick=()=>startQuiz(qSub,qTopic);w.appendChild(a);
+}
+// ===== ТЕКСТЫ МЫСЛИТЕЛЕЙ (ИИ-разбор) =====
+let tSub=null,tName=null;
+function textPrompt(k,name){
+  const src=SOURCES[k]?'Опирайся на: '+SOURCES[k]:'';
+  return 'Ты — преподаватель философии, готовишь студента к зачёту. Сделай компактный разбор мыслителя «'+name+'» (или школы «'+name+'»). '+src+' '+
+    'Структура ответа строго такая, заголовки начинай с тире: '+
+    '— Кто это: 1–2 предложения о времени, течении и роли в истории философии. '+
+    '— Ключевые идеи: 4–6 пунктов, каждый одной строкой. '+
+    '— Главные работы: названия (для древних — названия того, что сохранилось). '+
+    '— Что запомнить: 2–3 коротких положения или крылатых выражения (цитаты давай только короткие и общеизвестные, либо пересказывай своими словами). '+
+    '— Чем запутаться на зачёте: 1–2 типичные ошибки студентов про этого мыслителя. '+
+    'Пиши по-русски, живо и конкретно, без воды. Не используй markdown-разметку (звёздочки, решётки) — только чистый текст с тире.';
+}
+async function fetchTextAI(k,name){
+  try{
+    const seed=Math.random().toString(36).slice(2,8);
+    const r=await fetch('https://text.pollinations.ai/'+encodeURIComponent(textPrompt(k,name)+' [seed:'+seed+']'),{signal:AbortSignal.timeout(15000)});
+    if(!r.ok)return null;
+    const x=await r.text().then(t=>t.trim());
+    if(!x||x.length<100)return null;
+    return x;
+  }catch(e){return null}
+}
+function failText(){
+  document.getElementById('text-body').textContent='Сломалось… Попробуй снова.';
+  const w=document.createElement('div');w.className='quiz-btns';
+  const b=document.createElement('button');b.className='btn-blue';b.textContent='Попробовать снова';
+  b.onclick=()=>startText(tSub,tName);w.appendChild(b);
+  document.getElementById('text-body').appendChild(w);
+}
+async function startText(k,name){
+  tSub=k;tName=name;
+  document.getElementById('text-title').textContent=name;
+  document.getElementById('text-topic').textContent=SUBJECTS[k].title+' · разбор мыслителя';
+  const body=document.getElementById('text-body');
+  body.textContent='Generation…';
+  showScreen('screen-text');
+  const t=await fetchTextAI(k,name);
+  if(!t){failText();return}
+  body.textContent=t;
+}
+function togglePanel(id,card){
+  const p=document.getElementById(id),open=p.classList.contains('show');
+  document.querySelectorAll('.card-panel.show').forEach(x=>x.classList.remove('show'));
+  document.querySelectorAll('.card.open').forEach(x=>x.classList.remove('open'));
+  if(!open){p.classList.add('show');card.classList.add('open')}
+}
+// Таймеры
+function fmt(ms){
+  if(ms<0)return 'Уже началось!';
+  const t=Math.floor(ms/1000);
+  return Math.floor(t/86400)+' дн '+Math.floor(t%86400/3600)+' ч '+Math.floor(t%3600/60)+' мин '+t%60+' сек';
+}
+function upd(){
+  const n=new Date();
+  document.getElementById('timer-region').textContent=fmt(REGION_DATE-n);
+  document.getElementById('timer-final').textContent=fmt(FINAL_DATE-n);
+}
+// Звёзды
+for(let i=0;i<120;i++){
+  const s=document.createElement('div');s.className='star';
+  const z=Math.random()*2+1;s.style.width=z+'px';s.style.height=z+'px';
+  s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';
+  s.style.animationDelay=Math.random()*8+'s';document.body.appendChild(s);
+}
+function spawnFloat(id,items,n,cls,mn,mx){
+  const c=document.getElementById(id);
+  for(let i=0;i<n;i++){
+    const e=document.createElement('div');e.className=cls;
+    e.textContent=items[Math.floor(Math.random()*items.length)];
+    e.style.left=Math.random()*88+'%';e.style.top=Math.random()*88+'%';
+    e.style.fontSize=(mn+Math.random()*(mx-mn))+'px';e.style.animationDelay=Math.random()*10+'s';
+    c.appendChild(e);
+  }
+}
+function buildBg(k){
+  const bg=document.getElementById('subject-bg');bg.innerHTML='';
+  if(k==='economics')spawnFloat('subject-bg',['MC = dTC / dQ','MR = dTR / dQ','MP = dTP / dL','MU = dU / dx','E = (dQ / Q) / (dP / P)','MRS = − (dy / dx)','π = TR − TC = P·Q − TC(Q)','π → max при MR = MC','MPC = dC / dY,  MPC + MPS = 1','MV = PQ','U(x, y) → max при p₁x + p₂y = I','G = C + I + G + Xₙ','r = i − π (реальная ставка)','AC = TC / Q,  AVC = VC / Q'],18,'formula',14,26);
+  if(k==='philosophy'){const e=document.createElement('div');e.className='bg-big';e.textContent='🗿';e.style.fontSize='46vh';bg.appendChild(e);spawnFloat('subject-bg',['🗿','🏛️'],5,'bg-emoji',28,52)}
+  if(k==='law'){const e=document.createElement('div');e.className='bg-big';e.textContent='⚖️';e.style.fontSize='44vh';bg.appendChild(e);spawnFloat('subject-bg',['📜','🏛️'],5,'bg-emoji',26,48)}
+  if(k==='culturology')spawnFloat('subject-bg',['🏛️','🗼','🏰','🕌','⛩️','🗿','🛕','🎭','🏯','🗽'],7,'photo-card',34,56);
+  if(k==='politics')spawnFloat('subject-bg',['Democracy','Monarchy','Republic','Federalism','Autocracy','Oligarchy','Theocracy','Anarchy','Tyranny','Confederation','Totalitarianism','Aristocracy','Plutocracy','Unitary','Bureaucracy','Sovereignty'],14,'tagword',15,28);
+  if(k==='logic')spawnFloat('subject-bg',['∀','∃','¬','∧','∨','→','↔','⊕','≡','⊢','∴','⊨','⇒','⇔','{}','< >','==','&&','||','λ','∂','∞'],20,'formula',20,42);
+  if(k==='sociology'){
+    const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg');
+    svg.setAttribute('class','soc-svg');svg.setAttribute('viewBox','0 0 100 100');
+    svg.setAttribute('preserveAspectRatio','xMidYMid slice');bg.appendChild(svg);
+    const pts=[];for(let i=0;i<10;i++)pts.push({x:6+Math.random()*88,y:10+Math.random()*80});
+    for(let i=0;i<10;i++){let bi=-1,bd=1/0;
+      for(let j=0;j<10;j++){if(i===j)continue;const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=dx*dx+dy*dy;if(d<bd){bd=d;bi=j}}
+      if(bi>=0&&i<bi){const l=document.createElementNS(NS,'line');
+        l.setAttribute('x1',pts[i].x);l.setAttribute('y1',pts[i].y);l.setAttribute('x2',pts[bi].x);l.setAttribute('y2',pts[bi].y);
+        l.setAttribute('class','soc-link');svg.appendChild(l)}}
+    pts.forEach(p=>{
+      const g=document.createElementNS(NS,'g');g.setAttribute('class','soc-person');
+      g.setAttribute('transform','translate('+p.x+','+p.y+') scale(0.5)');g.style.animationDelay=Math.random()*5+'s';
+      const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+      [['circle',{cx:0,cy:-3,r:2.2,class:'soc-node'}],['line',{x1:0,y1:-.5,x2:0,y2:4.5,class:'soc-limb'}],
+       ['line',{x1:-3,y1:1.2,x2:3,y2:1.2,class:'soc-limb'}],['line',{x1:0,y1:4.5,x2:-2.6,y2:8.5,class:'soc-limb'}],
+       ['line',{x1:0,y1:4.5,x2:2.6,y2:8.5,class:'soc-limb'}]].forEach(([t,a])=>g.appendChild(mk(t,a)));
+      svg.appendChild(g);
+    });
+  }
+}
+// Полка
+(function(){
+  const tr=document.getElementById('shelf-track');
+  const C=['#5c2e2e','#3a2a1a','#2e3b4e','#4a3b5c','#5e4a2a','#333','#6b2737','#2f4f4f','#4e342e','#3d2b3d','#556b2f','#6e4b3a','#403a4a','#7a4a3a','#2b3d3a'];
+  for(let r=0;r<3;r++){
+    const row=document.createElement('div');row.className='shelf-row';
+    for(let i=0;i<55;i++){
+      const b=document.createElement('div');b.className='book';
+      b.style.width=(12+Math.random()*26)+'px';b.style.height=(80+Math.random()*90)+'px';
+      b.style.background=C[Math.floor(Math.random()*C.length)];row.appendChild(b);
+    }
+    tr.appendChild(row);
+    const bd=document.createElement('div');bd.className='shelf-board';tr.appendChild(bd);
+  }
+})();
+// Календарь
+(function(){
+  const n=new Date(),y=n.getFullYear(),m=n.getMonth();
+  const M=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  document.getElementById('cal-title').textContent=M[m]+' '+y;
+  const cal=document.getElementById('cal-grid');
+  ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(w=>{const c=document.createElement('div');c.className='cal-cell cal-wd';c.textContent=w;cal.appendChild(c)});
+  const off=(new Date(y,m,1).getDay()+6)%7,dim=new Date(y,m+1,0).getDate();
+  for(let i=0;i<off;i++)cal.appendChild(Object.assign(document.createElement('div'),{className:'cal-cell'}));
+  for(let d=1;d<=dim;d++){const c=document.createElement('div');c.className='cal-cell';c.textContent=d;if(d===n.getDate())c.classList.add('cal-today');cal.appendChild(c)}
+  spawnFloat('bg-daily',['📅','🗓️','⏳','✅'],6,'bg-emoji',22,40);
+})();
+upd();setInterval(upd,1000);
+</script>
+</body></html>
