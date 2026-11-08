@@ -225,27 +225,29 @@ let LAST_ERR='';
 
 async function provodChat(prompt){
   LAST_ERR='';
-  const init={
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+PROVOD_KEY},
-    body:JSON.stringify({model:PROVOD_MODEL,messages:[{role:'user',content:prompt}]}),
-    signal:AbortSignal.timeout(60000)
-  };
-  // Попытка 1: напрямую (если вдруг провайдер когда-нибудь разрешит CORS)
-  try{
-    const r=await fetch('https://api.provod.ai/v1/chat/completions',init);
-    if(!r.ok){const t=await r.text().catch(()=>'');LAST_ERR='HTTP '+r.status+': '+String(t).slice(0,200);return null}
-    const d=await r.json();
-    return (d&&d.choices&&d.choices[0]&&d.choices[0].message)?d.choices[0].message.content:null;
-  }catch(e){}
-  // Попытка 2: через CORS-прокси
-  try{
-    const r2=await fetch('https://corsproxy.io/?url='+encodeURIComponent('https://api.provod.ai/v1/chat/completions'),init);
-    if(!r2.ok){const t2=await r2.text().catch(()=>'');LAST_ERR='HTTP '+r2.status+': '+String(t2).slice(0,200);return null}
-    const d2=await r2.json();
-    return (d2&&d2.choices&&d2.choices[0]&&d2.choices[0].message)?d2.choices[0].message.content:null;
-  }catch(e2){LAST_ERR='Прокси не ответил: '+e2.message;return null}
+  const body=JSON.stringify({model:PROVOD_MODEL,messages:[{role:'user',content:prompt}]});
+  const target='https://api.provod.ai/v1/chat/completions';
+  const attempts=[
+    {url:target},
+    {url:'https://api.allorigins.win/raw?url='+encodeURIComponent(target)},
+    {url:'https://api.cors.lol/?url='+encodeURIComponent(target)}
+  ];
+  for(const a of attempts){
+    try{
+      const r=await fetch(a.url,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+PROVOD_KEY},
+        body:body,
+        signal:AbortSignal.timeout(60000)
+      });
+      if(!r.ok){const t=await r.text().catch(()=>'');LAST_ERR='HTTP '+r.status+': '+String(t).slice(0,200);continue}
+      const d=await r.json();
+      return (d&&d.choices&&d.choices[0]&&d.choices[0].message)?d.choices[0].message.content:null;
+    }catch(e){LAST_ERR='Не удалось связаться: '+e.message}
+  }
+  return null;
 }
+
 
 const REGION_DATE=new Date('2027-02-04T10:00:00'),FINAL_DATE=new Date('2027-04-12T10:00:00');
 const CUSTOM_BG=['screen-subject','screen-materials','screen-daily','screen-quiz','screen-text'];
