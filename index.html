@@ -217,6 +217,24 @@ const SOURCES={
 philosophy:'Опирайся на: учебник Руденко по философии, Б. Рассел «История западной философии», материалы Гоффмана и Постнауки, а также на канонические труды философов. Распределяй мыслителей по течениям и историческим периодам верно.'
 };
 
+// ===== ИИ: Provod.AI (OpenAI-совместимый) =====
+const PROVOD_KEY='sk_770134c71d9a541d19c9a387b9a7c092a68f79ab790b078f';
+const PROVOD_MODEL='deepseek/deepseek-v4-flash';
+
+async function provodChat(prompt){
+  try{
+    const r=await fetch('https://api.provod.ai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+PROVOD_KEY},
+      body:JSON.stringify({model:PROVOD_MODEL,messages:[{role:'user',content:prompt}]}),
+      signal:AbortSignal.timeout(30000)
+    });
+    if(!r.ok)return null;
+    const d=await r.json();
+    return (d&&d.choices&&d.choices[0]&&d.choices[0].message)?d.choices[0].message.content:null;
+  }catch(e){return null}
+}
+
 const REGION_DATE=new Date('2027-02-04T10:00:00'),FINAL_DATE=new Date('2027-04-12T10:00:00');
 const CUSTOM_BG=['screen-subject','screen-materials','screen-daily','screen-quiz','screen-text'];
 function showScreen(id){
@@ -265,9 +283,9 @@ function quizPrompt(k,topicName){
 async function fetchAI(k,topicName){
   try{
     const seed=Math.random().toString(36).slice(2,8);
-    const r=await fetch('https://text.pollinations.ai/'+encodeURIComponent(quizPrompt(k,topicName)+' [seed:'+seed+']'),{signal:AbortSignal.timeout(15000)});
-    if(!r.ok)return null;
-    const x=await r.text(),a=x.indexOf('['),b=x.lastIndexOf(']');
+    const x=await provodChat(quizPrompt(k,topicName)+' [seed:'+seed+']');
+    if(!x)return null;
+    const a=x.indexOf('['),b=x.lastIndexOf(']');
     if(a===-1||b<=a)return null;
     const arr=JSON.parse(x.slice(a,b+1));
     if(!Array.isArray(arr))return null;
@@ -350,11 +368,11 @@ function textPrompt(k,name){
 async function fetchTextAI(k,name){
   try{
     const seed=Math.random().toString(36).slice(2,8);
-    const r=await fetch('https://text.pollinations.ai/'+encodeURIComponent(textPrompt(k,name)+' [seed:'+seed+']'),{signal:AbortSignal.timeout(15000)});
-    if(!r.ok)return null;
-    const x=await r.text().then(t=>t.trim());
-    if(!x||x.length<100)return null;
-    return x;
+    const x=await provodChat(textPrompt(k,name)+' [seed:'+seed+']');
+    if(!x)return null;
+    const t=x.trim();
+    if(!t||t.length<100)return null;
+    return t;
   }catch(e){return null}
 }
 function failText(){
