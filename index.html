@@ -217,36 +217,36 @@ const SOURCES={
 philosophy:'Опирайся на: учебник Руденко по философии, Б. Рассел «История западной философии», материалы Гоффмана и Постнауки, а также на канонические труды философов. Распределяй мыслителей по течениям и историческим периодам верно.'
 };
 
-// ===== ИИ: Provod.AI (OpenAI-совместимый) =====
-const PROVOD_KEY='sk_770134c71d9a541d19c9a387b9a7c092a68f79ab790b078f';
-const PROVOD_MODEL='deepseek/deepseek-v4-flash';
-
-let LAST_ERR='';
-
+// ===== ИИ: RouterAI =====
 async function provodChat(prompt){
   LAST_ERR='';
-  const body=JSON.stringify({model:PROVOD_MODEL,messages:[{role:'user',content:prompt}]});
-  const target='https://api.provod.ai/v1/chat/completions';
-  const attempts=[
-    {url:target},
-    {url:'https://api.allorigins.win/raw?url='+encodeURIComponent(target)},
-    {url:'https://api.cors.lol/?url='+encodeURIComponent(target)}
+  const models=['gpt-4o-mini','deepseek-v3','gemini-2.0-flash','qwen-max'];
+  const target='https://routerai.ru/api/v1/chat/completions';
+  const urls=[
+    target,
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(target),
+    'https://api.cors.lol/?url='+encodeURIComponent(target)
   ];
-  for(const a of attempts){
-    try{
-      const r=await fetch(a.url,{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+PROVOD_KEY},
-        body:body,
-        signal:AbortSignal.timeout(60000)
-      });
-      if(!r.ok){const t=await r.text().catch(()=>'');LAST_ERR='HTTP '+r.status+': '+String(t).slice(0,200);continue}
-      const d=await r.json();
-      return (d&&d.choices&&d.choices[0]&&d.choices[0].message)?d.choices[0].message.content:null;
-    }catch(e){LAST_ERR='Не удалось связаться: '+e.message}
+  for(const url of urls){
+    for(const m of models){
+      try{
+        const r=await fetch(url,{
+          method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer sk-sqI_qSM-dioHi1HK_5Nnc3V913t7Qc0h'},
+          body:JSON.stringify({model:m,messages:[{role:'user',content:prompt}]}),
+          signal:AbortSignal.timeout(60000)
+        });
+        if(!r.ok){const t=await r.text().catch(()=>'');LAST_ERR='HTTP '+r.status+': '+String(t).slice(0,200);continue}
+        const d=await r.json();
+        const c=d&&d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content;
+        if(c)return c;
+        LAST_ERR='Пустой ответ';
+      }catch(e){LAST_ERR='Не удалось связаться: '+e.message}
+    }
   }
   return null;
 }
+
 
 
 const REGION_DATE=new Date('2027-02-04T10:00:00'),FINAL_DATE=new Date('2027-04-12T10:00:00');
