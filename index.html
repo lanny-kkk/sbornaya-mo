@@ -307,7 +307,7 @@ async function fetchAI(k,topicName){
   }catch(e){return null}
 }
 function failQuiz(){
-  document.getElementById('quiz-question').textContent='Сломалось…' + +(LAST_ERR||'Причина неизвестна')+' Попробуй снова.';
+  document.getElementById('quiz-question').textContent='Сломалось…'+(LAST_ERR||'Причина неизвестна')+' Попробуй снова.';
   const w=document.getElementById('quiz-btns');w.innerHTML='';
   const b=document.createElement('button');b.className='btn-blue';b.textContent='Попробовать снова';
   b.onclick=()=>startQuiz(qSub,qTopic);w.appendChild(b);
