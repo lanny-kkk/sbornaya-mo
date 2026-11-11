@@ -217,31 +217,33 @@ const SOURCES={
 philosophy:'Опирайся на: учебник Руденко по философии, Б. Рассел «История западной философии», материалы Гоффмана и Постнауки, а также на канонические труды философов. Распределяй мыслителей по течениям и историческим периодам верно.'
 };
 
-// ===== ИИ: Твой собственный воркер (стабильно, без CORS) =====
+let LAST_ERR='';
+// ===== ИИ: RouterAI напрямую (без прокси и воркеров) =====
 async function provodChat(prompt){
   LAST_ERR='';
-  try{
-    const r=await fetch('https://rrrr.lannykorol.workers.dev/',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({prompt:prompt}),
-      signal:AbortSignal.timeout(90000)
-    });
-    if(!r.ok){
-      const t=await r.text().catch(()=>'');
-      LAST_ERR='HTTP '+r.status+': '+String(t).slice(0,200);
-      return null;
-    }
-    const d=await r.json();
-    const c=d&&d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content;
-    if(c)return c;
-    LAST_ERR='Пустой ответ';
-    return null;
-  }catch(e){
-    LAST_ERR='Не удалось связаться: '+e.message;
-    return null;
+  const models=['deepseek/deepseek-v4-pro-0813','nex-agi/nex-n2.6','meta/muse-ember'];
+  for(const m of models){
+    try{
+      const r=await fetch('https://routerai.ru/api/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer sk-sqI_qSM-dioHi1HK_5Nnc3V913t7Qc0h'},
+        body:JSON.stringify({model:m,messages:[{role:'user',content:prompt}]}),
+        signal:AbortSignal.timeout(90000)
+      });
+      if(!r.ok){
+        const t=await r.text().catch(()=>'');
+        LAST_ERR='HTTP '+r.status+': '+String(t).slice(0,200);
+        continue;
+      }
+      const d=await r.json();
+      const c=d&&d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content;
+      if(c)return c;
+      LAST_ERR='Пустой ответ';
+    }catch(e){LAST_ERR='Не удалось связаться: '+e.message}
   }
+  return null;
 }
+
 
 
 
@@ -305,7 +307,7 @@ async function fetchAI(k,topicName){
   }catch(e){return null}
 }
 function failQuiz(){
-  document.getElementById('quiz-question').textContent='Сломалось… Попробуй снова.';
+  document.getElementById('quiz-question').textContent='Сломалось…' + +(LAST_ERR||'Причина неизвестна')+' Попробуй снова.';
   const w=document.getElementById('quiz-btns');w.innerHTML='';
   const b=document.createElement('button');b.className='btn-blue';b.textContent='Попробовать снова';
   b.onclick=()=>startQuiz(qSub,qTopic);w.appendChild(b);
@@ -387,7 +389,7 @@ async function fetchTextAI(k,name){
   }catch(e){return null}
 }
 function failText(){
-  document.getElementById('text-body').textContent='Сломалось… Попробуй снова.';
+  document.getElementById('text-body').textContent='Сломалось...'+(LAST_ERR||'Причина неизвестна')+' Попробуй снова.';
   const w=document.createElement('div');w.className='quiz-btns';
   const b=document.createElement('button');b.className='btn-blue';b.textContent='Попробовать снова';
   b.onclick=()=>startText(tSub,tName);w.appendChild(b);
