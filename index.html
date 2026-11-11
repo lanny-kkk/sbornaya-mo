@@ -217,27 +217,32 @@ const SOURCES={
 philosophy:'Опирайся на: учебник Руденко по философии, Б. Рассел «История западной философии», материалы Гоффмана и Постнауки, а также на канонические труды философов. Распределяй мыслителей по течениям и историческим периодам верно.'
 };
 
-// ===== ИИ: Pollinations (без ключей и прокси) =====
+// ===== ИИ: Твой собственный воркер (стабильно, без CORS) =====
 async function provodChat(prompt){
   LAST_ERR='';
-  const models=['openai','openai-fast','mistral'];
-  for(const m of models){
-    try{
-      const r=await fetch('https://text.pollinations.ai/openai',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({model:m,messages:[{role:'user',content:prompt}]}),
-        signal:AbortSignal.timeout(90000)
-      });
-      if(!r.ok){const t=await r.text().catch(()=>'');LAST_ERR='HTTP '+r.status+': '+String(t).slice(0,200);continue}
-      const d=await r.json();
-      const c=d&&d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content;
-      if(c)return c;
-      LAST_ERR='Пустой ответ';
-    }catch(e){LAST_ERR='Не удалось связаться: '+e.message}
+  try{
+    const r=await fetch('https://rrrr.lannykorol.workers.dev/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt:prompt}),
+      signal:AbortSignal.timeout(90000)
+    });
+    if(!r.ok){
+      const t=await r.text().catch(()=>'');
+      LAST_ERR='HTTP '+r.status+': '+String(t).slice(0,200);
+      return null;
+    }
+    const d=await r.json();
+    const c=d&&d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content;
+    if(c)return c;
+    LAST_ERR='Пустой ответ';
+    return null;
+  }catch(e){
+    LAST_ERR='Не удалось связаться: '+e.message;
+    return null;
   }
-  return null;
 }
+
 
 
 
