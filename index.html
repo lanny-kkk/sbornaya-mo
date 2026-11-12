@@ -216,33 +216,30 @@ sociology:{title:'Социология',def:'<i>Социоло́гия</i> — �
 const SOURCES={
 philosophy:'Опирайся на: учебник Руденко по философии, Б. Рассел «История западной философии», материалы Гоффмана и Постнауки, а также на канонические труды философов. Распределяй мыслителей по течениям и историческим периодам верно.'
 };
-
 let LAST_ERR='';
-// ===== ИИ: RouterAI напрямую (без прокси и воркеров) =====
+// ===== ИИ: Pollinations (бесплатно, без ключей) =====
 async function provodChat(prompt){
   LAST_ERR='';
-  const models=['deepseek/deepseek-v4-pro-0813','nex-agi/nex-n2.6','meta/muse-ember'];
-  for(const m of models){
-    try{
-      const r=await fetch('https://routerai.ru/api/v1/chat/completions',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer sk-sqI_qSM-dioHi1HK_5Nnc3V913t7Qc0h'},
-        body:JSON.stringify({model:m,messages:[{role:'user',content:prompt}]}),
-        signal:AbortSignal.timeout(90000)
-      });
-      if(!r.ok){
-        const t=await r.text().catch(()=>'');
-        LAST_ERR='HTTP '+r.status+': '+String(t).slice(0,200);
-        continue;
-      }
-      const d=await r.json();
-      const c=d&&d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content;
-      if(c)return c;
-      LAST_ERR='Пустой ответ';
-    }catch(e){LAST_ERR='Не удалось связаться: '+e.message}
-  }
+  try{
+    const r=await fetch('https://text.pollinations.ai/openai',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'openai',messages:[{role:'user',content:prompt}]}),
+      signal:AbortSignal.timeout(90000)
+    });
+    if(!r.ok){
+      const t=await r.text().catch(()=>'');
+      LAST_ERR='HTTP '+r.status+': '+String(t).slice(0,200);
+      return null;
+    }
+    const d=await r.json();
+    const c=d&&d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content;
+    if(c)return c;
+    LAST_ERR='Пустой ответ';
+  }catch(e){LAST_ERR='Не удалось связаться: '+e.message}
   return null;
 }
+
 
 
 const REGION_DATE=new Date('2027-02-04T10:00:00'),FINAL_DATE=new Date('2027-04-12T10:00:00');
