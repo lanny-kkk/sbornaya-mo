@@ -245,9 +245,6 @@ async function provodChat(prompt){
 }
 
 
-
-
-
 const REGION_DATE=new Date('2027-02-04T10:00:00'),FINAL_DATE=new Date('2027-04-12T10:00:00');
 const CUSTOM_BG=['screen-subject','screen-materials','screen-daily','screen-quiz','screen-text'];
 function showScreen(id){
@@ -258,6 +255,7 @@ function showScreen(id){
   const hide=CUSTOM_BG.indexOf(id)!==-1;
   document.querySelectorAll('.star').forEach(st=>st.style.display=hide?'none':'block');
 }
+  
 function showSubject(key){
   const s=SUBJECTS[key];
   document.getElementById('subject-title').textContent=s.title;
